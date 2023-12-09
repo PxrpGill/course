@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}
+  Страница - {{ product.title }} / {{ product.pk }}
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-center m-5">
+    <div class="card col-9 m-4">
+      <div class="card-header">
+        Детальный обзор продукта: <h1>{{ product.title }} / {{ product.pk }}</h1>
+      </div>
+      <div class="card-body">
+        <h3>Фотография продукта:</h3>
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.title }}" width="350" height="300">
+        {% else %}
+          <img class="card-img-top" src="{% static 'images/no_img.png' %}" alt="{{ product.title }}" width="120" height="200">
+        {% endif %}
+        <hr>
+        <h3>Описание:</h3>
+        <p>{{ product.description|linebreaksbr }}</p>
+        <hr>
+        <h3>Характеристики:</h3>
+        <p>{{ product.parameters|linebreaksbr }}</p>
+        <hr>
+        <h3>Категория:</h3>
+        <p>{{ product.category }}</p>
+        <hr>
+        <h3>Тип продукта:</h3>
+        <p>{{ product.product_type }}</p>
+        <hr>
+        <h3>Опубликовано:</h3>
+        <p>{{ product.pub_date }}</p>
+        <hr>
+        <h3>Цена:</h3>
+        <p>{{ product.price }} руб.</p>
+        <form method="post"
+              enctype="multiparty/form-data"
+              action="{% url 'main:cart_add_product' product.pk %}">
+          {% csrf_token %}
+          {% bootstrap_button button_type="submit" content="Добавить в корзину" %}
+        </form>
+        <hr>
+        {% include "includes/create_comment.html" %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

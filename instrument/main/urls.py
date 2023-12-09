@@ -1,0 +1,111 @@
+from django.urls import path, include
+
+from . import views
+
+
+app_name = 'main'
+
+
+urlpatterns = [
+    path('', views.MainPageListView.as_view(), name='index'),
+    path(
+        'products/<slug:category>/<slug:product_type>/product/<int:product_id>/',
+        views.ProductDetailView.as_view(),
+        name='product_detail'
+    ),
+    path(
+        'products/add_product/',
+        views.ProductCreateView.as_view(),
+        name='product_add'
+    ),
+    path(
+        'products/<slug:category>/<slug:product_type>/product/<int:product_id>/edit/',
+        views.ProductUpdateView.as_view(),
+        name='product_edit'
+    ),
+    path(
+        'products/<slug:category>/<slug:product_type>/product/<int:product_id>/delete/',
+        views.ProductDeleteView.as_view(),
+        name='product_delete'
+    ),
+    path(
+        'products/categories/list/',
+        views.CategoryListView.as_view(),
+        name='category_list'
+    ),
+    path(
+        'products/category/add_category/',
+        views.CategoryCreateView.as_view(),
+        name='category_add'
+    ),
+    path(
+        'products/category/<slug:category>/',
+        views.CategoryDetailView.as_view(),
+        name='category_detail'
+    ),
+    path(
+        'products/category/<slug:category>/edit/',
+        views.CategoryUpdateView.as_view(),
+        name='category_edit'
+    ),
+    path(
+        'product/category/<slug:category>/delete/',
+        views.CategoryDeleteView.as_view(),
+        name='category_delete'
+    ),
+    path(
+        'products/category/<slug:category>/detail/<slug:product_type>/',
+        views.ProductTypeDetailView.as_view(),
+        name='product_type_detail'
+    ),
+    path(
+        'products/category/<slug:category>/edit/<slug:product_type>/',
+        views.ProductTypeUpdateView.as_view(),
+        name='product_type_edit'
+    ),
+    path(
+        'products/category/<slug:category>/delete/<slug:product_type>/',
+        views.ProductTypeDeleteView.as_view(),
+        name='product_type_delete'
+    ),
+    path(
+        'products/product_type/product_type_add/',
+        views.ProductTypeCreateView.as_view(),
+        name='product_type_add'
+    ),
+    path(
+        'products/<slug:category>/<slug:product_type>/product/<int:product_id>/add_comment/',
+        views.CommentCreateView.as_view(),
+        name='comment_add'
+    ),
+    path(
+        'products/<slug:category>/<slug:product_type>/product/<int:product_id>/comment/<int:comment_id>/edit/',
+        views.CommentUpdateView.as_view(),
+        name='comment_edit'
+    ),
+    path(
+        'products/<slug:category>/<slug:product_type>/product/<int:product_id>/comment/<int:comment_id>/delete/',
+        views.CommentDeleteView.as_view(),
+        name='comment_delete'
+    ),
+    path(
+        'instrument/profile/<username>/',
+        views.ProfileDetailView.as_view(),
+        name='profile_detail'
+    ),
+    path(
+        'instrument/creates/products/product_types/categories/',
+        views.CreatesListView.as_view(),
+        name='creates'
+    ),
+    path(
+        'products/<int:product_id>/add_cart/',
+        views.CartCreateView.as_view(),
+        name='cart_add_product'
+    ),
+    path(
+        'cart_view/',
+        views.CartDetailView.as_view(),
+        name='cart_view'
+    )
+]

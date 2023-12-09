@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}
+  Удаление комментария - {{ comment.pk }}
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-center m-5">
+    <div class="card col-9 m-4">
+      <div class="card-header">
+        <h5>Удаление комментария</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ comment.text }}
+          <br><br>
+          {{ comment.created_at }}
+          <br><br>
+          {% bootstrap_button button_type="submit" content="Удалить" %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

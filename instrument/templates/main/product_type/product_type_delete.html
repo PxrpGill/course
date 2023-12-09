@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Удаление типа продукта - {{ object.title }} / {{ object.slug }}.
+{% endblock %}
+
+{% load django_bootstrap5 %}
+
+{% block content %}
+  <div class="d-flex justify-content-center m-5">
+    <div class="card col-4 m-4">
+      <div class="card-header">
+        Удаление типа продукта - {{ object.title }} / {{ object.slug }}
+      </div>
+      <div class="card-body">
+        <p>Название: {{ object.title }}</p>
+        <hr>
+        <p>Идентификатор: {{ object.slug }}</p>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% bootstrap_button button_type="submit" content="Удалить" %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

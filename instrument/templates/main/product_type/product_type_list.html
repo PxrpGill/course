@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Список типов продуктов.
+{% endblock %}
+
+{% block content %}
+  <h1>Список типов продуктов</h1>
+  {% for object in object_list %}
+    <p>
+      <a href="{% url 'main:product_type_detail' object.slug %}">
+        {{ object.title }}
+      </a>
+      <a href="{% url 'main:product_type_update' object.slug %}">
+        Редактировать
+      </a>
+      <a href="{% url 'main:product_type_delete' object.slug %}">
+        Удалить
+      </a>
+    </p>
+  {% endfor %}
+  <a href="{% url 'main:product_type_create' %}">Создать новый тип продукта</a>
+{% endblock %}

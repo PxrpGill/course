@@ -1,0 +1,47 @@
+{% load static %}
+<header class="p-3 text-bg-dark">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <a href="{% url 'main:index' %}" class="d-flex flex-wrap align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+        <img src="{% static 'images/logo.png' %}" class="bi me-2" width="40" height="32">
+      </a>
+      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="{% url 'main:index' %}" class="nav-link px-2 text-secondary">Главная</a></li>
+        <li><a href="{% url 'pages:about' %}" class="nav-link px-2 text-white">О нас</a></li>
+        <li><a href="{% url 'pages:buyers' %}" class="nav-link px-2 text-white">Покупателям</a></li>
+        <li><a href="{% url 'pages:contacts' %}" class="nav-link px-2 text-white">Контакты</a></li>
+        {% if request.user.is_authenticated %}
+          <li><a class="nav-link px-2"><img src="{% static 'images/add_favorites.png' %}" width="30" height="30"></a></li>
+          <li>
+            <a href="{% url 'main:cart_view' %}" class="nav-link px-2">
+              <img src="{% static 'images/shopping_cart.png' %}" width="30" height="30">
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+      <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+        <input type="search" class="form-control form-control-dark text-white" placeholder="Найти..." aria-label="Найти">
+      </form>
+      <div class="text-end">
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'main:profile_detail' user.username %}">
+            <button type="button" class="btn btn-outline-light me-2">
+              Личный кабинет
+            </button>
+          </a>
+        {% else %}
+          <a href="{% url 'login' %}">
+            <button type="button" class="btn btn-outline-light me-2">
+              Войти
+            </button>
+          </a>
+          <a href="{% url 'registration' %}">
+            <button type="button" class="btn btn-warning">
+              Регистрация
+            </button>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>

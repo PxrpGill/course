@@ -1,0 +1,28 @@
+<div class="flex-shrink-0 p-3">
+  <a href="{% url 'main:category_list' %}" class="d-flex align-items-center pb-3 mb-3 link-body-emphasis text-decoration-none border-bottom">
+    <span class="fs-5 center mx-auto text-dark fw-semibold">Категории</span>
+  </a>
+  {% for category in categories %}
+    <ul class="list-unstyled ps-0">
+      <li class="mb-1">
+        <a href="{% url 'main:category_detail' category.slug %}">
+          <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">
+            {{ category.title }}
+          </button>
+        </a>
+        <div class="collapse show" id="home-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            {% for type in category.types.all %}
+              <li>
+                <a href="{% url 'main:product_type_detail' category.slug type.slug %}" class="d-inline-flex text-decoration-none rounded text-dark link-body-emphasis">
+                  {{ type.title }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </li>
+    </ul>
+  {% endfor %}
+</div>

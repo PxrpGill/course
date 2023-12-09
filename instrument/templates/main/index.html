@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Инструмент. Главная страница
+{% endblock %}
+
+{% block content %}
+  <div class="container pt-3 ps-0">
+    <div class="row">
+      <div class="col-md-3">
+        {% include "includes/sidebar.html" %}
+      </div>
+      <div class="col-md-9">
+        <div class="row">
+          {% for product in page_obj %}
+            <div class="card col-md-4 my-3 p-2">
+              {% if product.image %}
+                <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.title }}" width="120" height="200">
+              {% else %}
+                <img class="card-img-top" src="{% static 'images/no_img.png' %}" alt="{{ product.title }}" width="120" height="200">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title">{{ product.title }}</h5>
+                <p class="card-text">{{ product.description|truncatewords:8 }}</p>
+                <p class="card-price">Цена: {{ product.price }} руб.</p>
+                <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
+                  Смотреть
+                </a>
+                <img src="{% static 'images/add_favorites.png' %}" width="30" height="30">
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% include "includes/paginator.html" %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

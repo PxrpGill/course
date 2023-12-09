@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}
+  Инструмент. Создание записей.
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-center m-2 ">
+    <div class="card col-4 m-4">
+      <div class="card-header">
+        <h4>Создание продукта</h4>
+      </div>
+      <div class="card-body">
+        <h4>Описание создания продукта:</h4>
+        <ul>
+          <li>Название продукта</li>
+          <li>Описание продукта</li>
+          <li>Параметры продукта</li>
+          <li>Привязка категории</li>
+          <li>Привязка типа продукта</li>
+          <li>Фотография продукта</li>
+          <li>Дата публикации</li>
+          <li>Цена продукта</li>
+        </ul>
+        <a href="{% url 'main:product_add' %}" class="btn btn-primary">Создать</a>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center m-2 ">
+    <div class="card col-4 m-4">
+      <div class="card-header">
+        <h4>Создание категории</h4>
+      </div>
+      <div class="card-body">
+        <h4>Описание создания категории:</h4>
+        <ul>
+          <li>Название категории</li>
+          <li>Идентификатор категории</li>
+          <li>Фотография категории</li>
+        </ul>
+        <a href="{% url 'main:category_add' %}" class="btn btn-primary">Создать</a>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center m-2 ">
+    <div class="card col-4 m-4">
+      <div class="card-header">
+        <h4>Создание типа продукта</h4>
+      </div>
+      <div class="card-body">
+        <h4>Описание создания типа продукта:</h4>
+        <ul>
+          <li>Название типа продукта</li>
+          <li>Идентификатор типа продукта</li>
+          <li>Привязка категории</li>
+        </ul>
+        <a href="{% url 'main:product_type_add' %}" class="btn btn-primary">Создать</a>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <hr>
+    <h3>Продукты</h3>
+    <div class="row">
+      {% for product in products %}
+        <div class="card col-md-4 my-3 p-2">
+          {% if product.image %}
+            <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.title }}" width="120" height="200">
+          {% else %}
+            <img class="card-img-top" src="{% static 'images/no_img.png' %}" alt="{{ product.title }}" width="120" height="200">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ product.title }}</h5>
+            <p class="card-text">{{ product.description|truncatewords:8 }}</p>
+            <p class="card-price">Цена: {{ product.price }} руб.</p>
+            <a href="{% url 'main:product_edit' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
+              Редактировать
+            </a>
+            <a href="{% url 'main:product_delete' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
+              Удалить
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+      {% include "includes/paginator.html" %}
+    </div>
+    <hr>
+    <h3>Типы продуктов</h3>
+    <div class="row">
+      {% for type in product_types %}
+      <div class="card col-md-4 my-3 p-2">
+        <div class="card-body">
+          <h5 class="card-title">{{ type.title }}</h5>
+          <p class="card-slug">Идентификатор: {{ type.slug }}</p>
+          <p class="card-category">Категория: {{ type.category }}</p>
+          <a href="{% url 'main:product_type_edit' type.category.slug type.slug %}" class="btn btn-primary">
+            Редактировать
+          </a>
+          <a href="{% url 'main:product_type_delete' type.category.slug type.slug %}" class="btn btn-primary">
+            Удалить
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <hr>
+    <h3>Категории</h3>
+    <div class="row">
+      {% for category in categories %}
+      <div class="card col-md-4 my-3 p-2">
+        {% if category.image %}
+          <img class="card-img-top" src="{{ category.image.url }}" alt="{{ category.title }}" width="120" height="200">
+        {% else %}
+          <img class="card-img-top" src="{% static 'images/no_img.png' %}" alt="{{ category.title }}" width="120" height="200">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ category.title }}</h5>
+          <p class="card-slug">Идентификатор: {{ category.slug }}</p>
+          <a href="{% url 'main:category_edit' category.slug %}" class="btn btn-primary">
+            Редактировать
+          </a>
+          <a href="{% url 'main:category_delete' category.slug %}" class="btn btn-primary">
+            Удалить
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
+
+<!--
+<a href="#" class="btn btn-primary">Создать</a>
+-->

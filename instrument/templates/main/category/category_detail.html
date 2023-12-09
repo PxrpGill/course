@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Просмотр категории - {{ object.title }}
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-center m-2 ">
+    <div class="card col-6 m-4">
+      <div class="card-header">
+        <h4>Категория: {{ object.title }}</h4>
+      </div>
+      <div class="card-body">
+        {% if object.types.all %}
+          {% for type in object.types.all %}
+            <ul>
+              <li>
+                <a href="{% url 'main:product_type_detail' object.slug type.slug %}" class="text-decoration-none text-dark">
+                  {{ type.title }}
+                </a>
+              </li>
+            </ul>
+          {% endfor %}
+        {% else %}
+          <p>Здесь пока пусто!</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+  Удаление продукта - {{ object.title }} / {{ object.pk }}.
+{% endblock %}
+
+{% load django_bootstrap5 %}
+
+{% block content %}
+  <div class="d-flex justify-content-center m-5">
+    <div class="card col-4 m-4">
+      <div class="card-header">
+        Удаление продукта - {{ object.title }} / {{ object.pk }}
+      </div>
+      <div class="card-body">
+        {% if object.image %}
+          <img class="card-img-top" src="{{ object.image.url }}" alt="{{ object.title }}" width="120" height="200">
+        {% else %}
+          <img class="card-img-top" src="{% static 'images/no_img.png' %}" alt="{{ category.title }}" width="120" height="200">
+        {% endif %}
+        <hr>
+        <p>Название: {{ object.title }}</p>
+        <hr>
+        <p>Описание: {{ object.description }}</p>
+        <hr>
+        <p>Параметры: {{ object.parameters }}</p>
+        <hr>
+        <p>Категория: {{ object.category }}</p>
+        <hr>
+        <p>Тип продукта: {{ object.product_type }}</p>
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% bootstrap_button button_type="submit" content="Удалить" %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

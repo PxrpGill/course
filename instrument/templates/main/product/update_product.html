@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}
+  Редактирование продукта - {{ object.title}} / {{ object.pk }}.
+{% endblock %}
+
+{% load django_bootstrap5 %}
+
+{% block content %}
+  <div class="d-flex justify-content-center m-5">
+    <div class="card col-4 m-4">
+      <div class="card-header">
+        Редактирование продукта - {{ object.title }} / {{ object.pk }}
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% bootstrap_form form %}
+          {% bootstrap_button button_type="submit" content="Редактировать" %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
