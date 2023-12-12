@@ -13,7 +13,7 @@
         {% if request.user.is_authenticated %}
           <li><a class="nav-link px-2"><img src="{% static 'images/add_favorites.png' %}" width="30" height="30"></a></li>
           <li>
-            <a href="{% url 'main:cart_view' %}" class="nav-link px-2">
+            <a href="{% url 'main:cart_view' user.username %}" class="nav-link px-2">
               <img src="{% static 'images/shopping_cart.png' %}" width="30" height="30">
             </a>
           </li>

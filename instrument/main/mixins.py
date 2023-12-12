@@ -1,7 +1,7 @@
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 
-from .forms import ProductForm, CategoryForm, ProductTypeForm, CommentForm
-from .models import Product, Category, ProductType, Comment
+from .forms import CategoryForm, CommentForm, ProductForm, ProductTypeForm
+from .models import Category, Comment, Product, ProductType
 
 
 class ProductCreateUpdateDeleteMixin:
@@ -68,5 +68,3 @@ class DispatchMixin:
                 }
             )
         return super().dispatch(request, *args, **kwargs)
-
-

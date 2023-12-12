@@ -103,7 +103,7 @@ urlpatterns = [
         name='cart_add_product'
     ),
     path(
-        'cart_view/',
+        'cart_view/<username>',
         views.CartDetailView.as_view(),
         name='cart_view'
     )

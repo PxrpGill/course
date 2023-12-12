@@ -4,20 +4,16 @@ from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
-from django.views.generic import (
-    CreateView, DeleteView, DetailView, ListView, UpdateView, View
-)
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView, View)
 
 from .forms import CommentForm
+from .mixins import (CategoryCreateUpdateDeleteMixin,
+                     CommentMixinCreateUpdateDeleteMixin, DispatchMixin,
+                     ProductCreateUpdateDeleteMixin,
+                     ProductTypeCreateUpdateDeleteMixin)
 from .models import Cart, Category, Comment, Product, ProductType, User
-from .mixins import (
-    ProductCreateUpdateDeleteMixin,
-    CategoryCreateUpdateDeleteMixin,
-    ProductTypeCreateUpdateDeleteMixin,
-    CommentMixinCreateUpdateDeleteMixin,
-    DispatchMixin
-)
+
 
 PAGINATE = 8
 PAGINATE_CATEGORY = 16
@@ -322,5 +318,13 @@ class CartCreateView(LoginRequiredMixin, View):
 class CartDetailView(LoginRequiredMixin, DetailView):
     """Отображение содержимого корзины."""
 
-    model = Cart
+    model = User
     template_name = 'main/cart.html'
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = User.objects.get(username=self.kwargs['username'])
+        context['cart'] = Cart.objects.get(user=user.id)
+        return context
