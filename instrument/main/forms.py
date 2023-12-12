@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product, Comment, Category, ProductType
+from .models import Category, Comment, Product, ProductType
 
 
 class ProductForm(forms.ModelForm):

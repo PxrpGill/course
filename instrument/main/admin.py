@@ -1,8 +1,6 @@
 from django.contrib import admin
 
-from .models import (
-    Product, ProductType, Category, Comment, Cart, Favorite
-)
+from .models import Cart, Category, Comment, Favorite, Product, ProductType
 
 # admin 1234
 

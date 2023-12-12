@@ -1,23 +1,27 @@
 import datetime
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import (
-    ListView, CreateView, DetailView, UpdateView, DeleteView, View
+    CreateView, DeleteView, DetailView, ListView, UpdateView, View
 )
-from django.contrib.auth.mixins import PermissionRequiredMixin
 
-from .models import (
-    Product, Comment, Category, ProductType, User, Cart
+from .forms import CommentForm
+from .models import Cart, Category, Comment, Product, ProductType, User
+from .mixins import (
+    ProductCreateUpdateDeleteMixin,
+    CategoryCreateUpdateDeleteMixin,
+    ProductTypeCreateUpdateDeleteMixin,
+    CommentMixinCreateUpdateDeleteMixin,
+    DispatchMixin
 )
-from .forms import ProductForm, CommentForm, CategoryForm, ProductTypeForm
 
-
-paginate = 8
-paginate_category = 16
-paginate_create = 6
+PAGINATE = 8
+PAGINATE_CATEGORY = 16
+PAGINATE_CREATE = 6
 
 
 class MainPageListView(ListView):
@@ -25,7 +29,7 @@ class MainPageListView(ListView):
 
     model = Product
     context_object_name = 'product'
-    paginate_by = paginate
+    paginate_by = PAGINATE
     template_name = 'main/index.html'
 
     def get_context_data(self, **kwargs):
@@ -58,53 +62,44 @@ class ProductDetailView(DetailView):
         return context
 
 
-class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class ProductCreateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    ProductCreateUpdateDeleteMixin,
+    CreateView
+):
     """Создание продукта."""
 
-    model = Product
-    form_class = ProductForm
     permission_required = 'main.add_product'
     template_name = 'main/product/create_product.html'
-    success_url = reverse_lazy('main:creates')
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
 
-class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class ProductUpdateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    ProductCreateUpdateDeleteMixin,
+    UpdateView
+):
     """Редактирование содержимого продукта."""
 
-    model = Product
-    form_class = ProductForm
     permission_required = 'main.change_product'
     template_name = 'main/product/update_product.html'
-    pk_url_kwarg = 'product_id'
-
-    def get_success_url(self):
-        return reverse(
-            'main:product_detail',
-            kwargs={
-                'category': self.kwargs['category'],
-                'product_type': self.kwargs['product_type'],
-                'product_id': self.get_object().pk
-            }
-        )
 
 
-class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class ProductDeleteView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    ProductCreateUpdateDeleteMixin,
+    DeleteView
+):
     """Удаление продукта."""
 
-    model = Product
-    form_class = ProductForm
     permission_required = 'main.delete_product'
-    pk_url_kwarg = 'product_id'
     template_name = 'main/product/delete_product.html'
-
-    def get_success_url(self):
-        return reverse(
-            'main:creates'
-        )
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -118,7 +113,7 @@ class CategoryListView(ListView):
 
     model = Category
     template_name = 'main/category/category_list.html'
-    paginate_by = paginate_category
+    paginate_by = PAGINATE_CATEGORY
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(
@@ -142,40 +137,40 @@ class CategoryDetailView(DetailView):
         return context
 
 
-class CategoryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class CategoryCreateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    CategoryCreateUpdateDeleteMixin,
+    CreateView
+):
     """Создание категории."""
 
-    model = Category
-    form_class = CategoryForm
     permission_required = 'main.add_category'
     template_name = 'main/category/category_create.html'
-    success_url = reverse_lazy('main:creates')
 
 
-class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class CategoryUpdateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    CategoryCreateUpdateDeleteMixin,
+    UpdateView
+):
     """Редактирование категории."""
 
-    model = Category
-    form_class = CategoryForm
     permission_required = 'main.change_category'
-    slug_url_kwarg = 'category'
     template_name = 'main/category/category_update.html'
-    success_url = reverse_lazy('main:creates')
 
 
-class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class CategoryDeleteView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    CategoryCreateUpdateDeleteMixin,
+    DeleteView
+):
     """Удаление категории."""
 
-    model = Category
-    form_class = CategoryForm
     permission_required = 'main.delete_category'
-    slug_url_kwarg = 'category'
     template_name = 'main/category/category_delete.html'
-
-    def get_success_url(self):
-        return reverse(
-            'main:creates'
-        )
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -190,7 +185,7 @@ class ProductTypeDetailView(DetailView):
 
     model = ProductType
     template_name = 'main/product_type/product_type_detail.html'
-    paginate_by = paginate
+    paginate_by = PAGINATE
     slug_url_kwarg = 'product_type'
 
     def get_context_data(self, **kwargs):
@@ -201,31 +196,29 @@ class ProductTypeDetailView(DetailView):
         return context
 
 
-class ProductTypeUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class ProductTypeUpdateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    ProductTypeCreateUpdateDeleteMixin,
+    UpdateView
+):
     """Редактирование типа продукта."""
 
-    model = ProductType
-    form_class = ProductTypeForm
     permission_required = 'main.change_producttype'
-    slug_url_kwarg = 'product_type'
     template_name = 'main/product_type/product_type_update.html'
-    success_url = reverse_lazy('main:creates')
 
 
-class ProductTypeDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class ProductTypeDeleteView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    ProductTypeCreateUpdateDeleteMixin,
+    DeleteView
+):
     """Удаление типа продукта."""
 
-    model = ProductType
-    form_class = ProductTypeForm
     permission_required = 'main.delete_producttype'
-    slug_url_kwarg = 'product_type'
     template_name = 'main/product_type/product_type_delete.html'
 
-    def get_success_url(self):
-        return reverse(
-            'main:creates'
-        )
-
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
         success_url = self.get_success_url()
@@ -233,80 +226,38 @@ class ProductTypeDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteV
         return HttpResponseRedirect(success_url)
 
 
-class ProductTypeCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class ProductTypeCreateView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    ProductTypeCreateUpdateDeleteMixin,
+    CreateView
+):
     """Создание типа продукта."""
 
-    model = ProductType
-    form_class = ProductTypeForm
     permission_required = 'main.add_producttype'
     template_name = 'main/product_type/product_type_create.html'
-    success_url = reverse_lazy('main:creates')
 
 
-class CommentUpdateView(LoginRequiredMixin, UpdateView):
+class CommentUpdateView(
+    LoginRequiredMixin,
+    CommentMixinCreateUpdateDeleteMixin,
+    DispatchMixin,
+    UpdateView
+):
     """Редактирование комментария."""
 
-    model = Comment
-    form_class = CommentForm
     template_name = 'main/comment/update_comment.html'
-    pk_url_kwarg = 'comment_id'
-
-    def get_success_url(self):
-        return reverse(
-            'main:product_detail',
-            kwargs={
-                'category': self.kwargs['category'],
-                'product_type': self.kwargs['product_type'],
-                'product_id': self.kwargs['product_id']
-            }
-        )
-
-    def dispatch(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        if instance.author != request.user:
-            return reverse(
-                'main:product_detail',
-                kwargs={
-                    'category': self.kwargs['category'],
-                    'product_type': self.kwargs['product_type'],
-                    'product_id': self.kwargs['product_id']
-                }
-            )
-        return super().dispatch(request, *args, **kwargs)
 
 
-class CommentDeleteView(LoginRequiredMixin, DeleteView):
+class CommentDeleteView(
+    LoginRequiredMixin,
+    CommentMixinCreateUpdateDeleteMixin,
+    DispatchMixin,
+    DeleteView
+):
     """Удаление комментария."""
 
-    model = Comment
-    form_class = CommentForm
     template_name = 'main/comment/delete_comment.html'
-    pk_url_kwarg = 'comment_id'
-
-    def get_success_url(self):
-        return reverse_lazy(
-            'main:product_detail',
-            kwargs={
-                'category': self.kwargs['category'],
-                'product_type': self.kwargs['product_type'],
-                'product_id': self.kwargs['product_id']
-            }
-        )
-
-    def dispatch(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        if instance.author != request.user:
-            return reverse(
-                'main:product_detail',
-                kwargs={
-                    'category': self.kwargs['category'],
-                    'product_type': self.kwargs['product_type'],
-                    'product_id': self.kwargs['product_id']
-                }
-            )
-        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -315,11 +266,13 @@ class CommentDeleteView(LoginRequiredMixin, DeleteView):
         return HttpResponseRedirect(success_url)
 
 
-class CommentCreateView(LoginRequiredMixin, CreateView):
+class CommentCreateView(
+    LoginRequiredMixin,
+    CommentMixinCreateUpdateDeleteMixin,
+    CreateView
+):
     """Создание комментария."""
 
-    model = Comment
-    form_class = CommentForm
     template_name = 'main/product/detail_product.html'
 
     def form_valid(self, form):
@@ -329,16 +282,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
             pk=self.kwargs['product_id']
         )
         return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse(
-            'main:product_detail',
-            kwargs={
-                'category': self.kwargs['category'],
-                'product_type': self.kwargs['product_type'],
-                'product_id': self.kwargs['product_id']
-            }
-        )
 
 
 class ProfileDetailView(LoginRequiredMixin, DeleteView):
@@ -357,7 +300,7 @@ class CreatesListView(ListView):
     model = Product
     context_object_name = 'products'
     template_name = 'creates.html'
-    paginate_by = paginate_create
+    paginate_by = PAGINATE_CREATE
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

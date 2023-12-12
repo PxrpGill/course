@@ -11,6 +11,8 @@
     {% bootstrap_form form %}
     {% bootstrap_button button_type="submit" content="Отправить" %}
   </form>
+{% else %}
+  <p>Чтобы оставлять комментарии к записи <a href="{% url 'login' %}">авторизируйтесь</a></p>
 {% endif %}
 <br>
 <h2>Комментарии к продукту:</h2>

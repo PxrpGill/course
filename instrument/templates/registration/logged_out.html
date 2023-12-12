@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Вы вышли из системы!</h2>
+  <div class="container col-8 mt-5">
+    <h3>
+      Вы вышли из системы! Вернитесь на
+      <a href="{% url 'main:index' %}">главную страницу</a>
+      или <a href="{% url 'login' %}">войдите в аккаунт снова</a>.
+    </h3>
+  </div>
 {% endblock %}
