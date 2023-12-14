@@ -28,7 +28,9 @@
                 <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
                   Смотреть
                 </a>
-                <img src="{% static 'images/add_favorites.png' %}" width="30" height="30">
+                <a href="{% url 'main:favorite_add_product' product.pk %}">
+                  <img src="{% static 'images/add_favorites.png' %}" width="30" height="30">
+                </a>
               </div>
             </div>
           {% endfor %}

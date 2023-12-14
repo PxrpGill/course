@@ -1,7 +1,7 @@
 from django.urls import reverse, reverse_lazy
 
 from .forms import CategoryForm, CommentForm, ProductForm, ProductTypeForm
-from .models import Category, Comment, Product, ProductType
+from .models import Category, Comment, Product, ProductType, User
 
 
 class ProductCreateUpdateDeleteMixin:
@@ -68,3 +68,11 @@ class DispatchMixin:
                 }
             )
         return super().dispatch(request, *args, **kwargs)
+
+
+class CartAndFavViewMixin:
+    """Миксин для просмотра содержимого корзины и избранного."""
+
+    model = User
+    slug_field = 'username'
+    slug_url_kwarg = 'username'

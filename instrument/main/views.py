@@ -8,11 +8,15 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView, View)
 
 from .forms import CommentForm
-from .mixins import (CategoryCreateUpdateDeleteMixin,
-                     CommentMixinCreateUpdateDeleteMixin, DispatchMixin,
-                     ProductCreateUpdateDeleteMixin,
-                     ProductTypeCreateUpdateDeleteMixin)
-from .models import Cart, Category, Comment, Product, ProductType, User
+from .mixins import (
+    CategoryCreateUpdateDeleteMixin,
+    CommentMixinCreateUpdateDeleteMixin,
+    DispatchMixin,
+    ProductCreateUpdateDeleteMixin,
+    ProductTypeCreateUpdateDeleteMixin,
+    CartAndFavViewMixin
+)
+from .models import Cart, Category, Comment, Product, ProductType, User, Favorite
 
 
 PAGINATE = 8
@@ -315,16 +319,42 @@ class CartCreateView(LoginRequiredMixin, View):
         return redirect('main:index')
 
 
-class CartDetailView(LoginRequiredMixin, DetailView):
+class CartDetailView(
+    LoginRequiredMixin,
+    CartAndFavViewMixin,
+    DetailView
+):
     """Отображение содержимого корзины."""
 
-    model = User
     template_name = 'main/cart.html'
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = User.objects.get(username=self.kwargs['username'])
         context['cart'] = Cart.objects.get(user=user.id)
         return context
+
+
+class FavoriteCreateView(LoginRequiredMixin, View):
+    """Добавление продукта в избранное."""
+
+    def post(self, request, product_id):
+        favorite, created = Favorite.objects.get_or_create(user=request.user)
+        product = get_object_or_404(Product, pk=product_id)
+        favorite.product.add(product)
+        return redirect('main:index')
+
+
+class FavoriteDetailView(
+    LoginRequiredMixin,
+    CartAndFavViewMixin,
+    DetailView
+):
+    """Отображение содержимого избранного."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = User.objects.get(username=self.kwargs['username'])
+        context['favorite'] = Favorite.objects.get(user=user.id)
+        return context
+

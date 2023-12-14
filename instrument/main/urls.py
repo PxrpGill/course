@@ -103,8 +103,18 @@ urlpatterns = [
         name='cart_add_product'
     ),
     path(
-        'cart_view/<username>',
+        'cart_view/<username>/',
         views.CartDetailView.as_view(),
         name='cart_view'
-    )
+    ),
+    path(
+        'favorite_view/<username>/',
+        views.FavoriteDetailView.as_view(),
+        name='favorite_view'
+    ),
+    path(
+        'products/<int:product_id>/add_favorite/',
+        views.FavoriteCreateView.as_view(),
+        name='favorite_add_product'
+    ),
 ]

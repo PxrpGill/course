@@ -2,10 +2,30 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
+
 User = get_user_model()
 
 
-class Category(models.Model):
+class Published(models.Model):
+    """Класс-родитель с полями is_published, created_at."""
+
+    is_published = models.BooleanField(
+        default=True,
+        verbose_name='Опубликовано',
+        help_text='Снимите галочку, чтобы скрыть публикацию.'
+    )
+    created_at = models.DateTimeField(
+        verbose_name='Добавлено',
+        auto_now_add=True
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Category(Published):
+    """Таблица в БД - Категория."""
+
     title = models.CharField(
         max_length=40,
         verbose_name='Название категории'
@@ -23,15 +43,6 @@ class Category(models.Model):
         blank=True,
         verbose_name='Фото категории'
     )
-    is_published = models.BooleanField(
-        default=True,
-        verbose_name='Опубликовано',
-        help_text='Снимите галочку, чтобы скрыть публикацию.'
-    )
-    created_at = models.DateTimeField(
-        verbose_name='Добавлено',
-        auto_now_add=True
-    )
 
     class Meta:
         verbose_name = 'категория'
@@ -41,7 +52,9 @@ class Category(models.Model):
         return self.title
 
 
-class ProductType(models.Model):
+class ProductType(Published):
+    """Таблица в БД - Тип продукта."""
+
     title = models.CharField(
         max_length=40,
         verbose_name='Название типа продукта'
@@ -60,15 +73,6 @@ class ProductType(models.Model):
         verbose_name='Категория',
         related_name='types'
     )
-    is_published = models.BooleanField(
-        default=True,
-        verbose_name='Опубликовано',
-        help_text='Снимите галочку, чтобы скрыть публикацию.'
-    )
-    created_at = models.DateTimeField(
-        verbose_name='Добавлено',
-        auto_now_add=True
-    )
 
     class Meta:
         verbose_name = 'тип продукта'
@@ -78,7 +82,9 @@ class ProductType(models.Model):
         return self.title
 
 
-class Product(models.Model):
+class Product(Published):
+    """Таблица в БД - Продукт."""
+
     title = models.CharField(
         max_length=40,
         verbose_name='Название инструмента'
@@ -120,15 +126,6 @@ class Product(models.Model):
         help_text='Цена не может быть ниже нуля.',
         default=1
     )
-    is_published = models.BooleanField(
-        default=True,
-        verbose_name='Опубликовано',
-        help_text='Снимите галочку, чтобы скрыть публикацию.'
-    )
-    created_at = models.DateTimeField(
-        verbose_name='Добавлено',
-        auto_now_add=True
-    )
 
     class Meta:
         verbose_name = 'инструмент'
@@ -139,7 +136,9 @@ class Product(models.Model):
         return self.title
 
 
-class Comment(models.Model):
+class Comment(Published):
+    """Таблица в БД - Комментарий."""
+
     text = models.TextField(verbose_name='Текст комментария')
     author = models.ForeignKey(
         User,
@@ -152,15 +151,6 @@ class Comment(models.Model):
         verbose_name='ID продукта',
         related_name='comments'
     )
-    is_published = models.BooleanField(
-        default=True,
-        verbose_name='Опубликовано',
-        help_text='Снимите галочку, чтобы скрыть публикацию.'
-    )
-    created_at = models.DateTimeField(
-        verbose_name='Добавлено',
-        auto_now_add=True
-    )
 
     class Meta:
         verbose_name = 'комментарий'
@@ -171,7 +161,9 @@ class Comment(models.Model):
         return self.author
 
 
-class Cart(models.Model):
+class CartAndFavModel(models.Model):
+    """Класс-родитель с полями user, product."""
+
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -182,6 +174,13 @@ class Cart(models.Model):
         verbose_name='Продукт'
     )
 
+    class Meta:
+        abstract = True
+
+
+class Cart(CartAndFavModel):
+    """Таблица в БД - Корзина."""
+
     def __str__(self):
         return f'{self.user} добавил в корзину {self.product}'
 
@@ -190,17 +189,8 @@ class Cart(models.Model):
         verbose_name_plural = 'Корзины'
 
 
-class Favorite(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь'
-    )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        verbose_name='Продукт'
-    )
+class Favorite(CartAndFavModel):
+    """Таблица в БД - Избранное."""
 
     def __str__(self):
         return f'{self.user} добавил в избранное {self.product}'
