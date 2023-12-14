@@ -45,9 +45,14 @@
             {% csrf_token %}
             {% bootstrap_button button_type="submit" content="Добавить в корзину" %}
           </form>
-          <a href="{% url 'main:favorite_add_product' product.pk %}">
-            <img src="{% static 'images/add_favorites.png' %}" width="30" height="30">
-          </a>
+          <form method="post"
+                enctype="multiparty/form-data"
+                action="{% url 'main:favorite_add_product' product.pk %}">
+            {% csrf_token %}
+            <input type="image"
+                   src="{% static 'images/add_favorites.png' %}"
+                   width="30" height="30" alt="Добавить в избранное">
+          </form>
         </div>
         <hr>
         {% include "includes/create_comment.html" %}

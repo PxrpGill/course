@@ -3,17 +3,17 @@
 {% load static %}
 
 {% block title %}
-  Содержимое корзины пользователя {{ user.username }}
+  Избранное пользователя {{ user.username }}
 {% endblock %}
 
 {% block content %}
   <div class="container mt-5">
-    <h3>Корзина:</h3>
+    <h3>Избранное:</h3>
   </div>
   <div class="container col-md-9">
     <div class="row">
-      {% if cart.product.all %}
-        {% for product in cart.product.all %}
+      {% if favorite.product.all %}
+        {% for product in favorite.product.all %}
           <div class="card col-md-3 my-3 p-2">
             {% if product.image %}
               <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.title }}" width="120" height="200">
@@ -32,7 +32,7 @@
           </div>
         {% endfor %}
       {% else %}
-        <h3 class="mt-5">Ваша корзина пуста!</h3>
+        <h3 class="mt-5">Ваш список избранного пуст!</h3>
       {% endif %}
     </div>
   </div>

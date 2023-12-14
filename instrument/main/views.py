@@ -330,8 +330,8 @@ class CartDetailView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = User.objects.get(username=self.kwargs['username'])
-        context['cart'] = Cart.objects.get(user=user.id)
+        cart, created = Cart.objects.get_or_create(user=self.request.user)
+        context['cart'] = cart
         return context
 
 
@@ -352,9 +352,11 @@ class FavoriteDetailView(
 ):
     """Отображение содержимого избранного."""
 
+    template_name = 'main/favorite.html'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = User.objects.get(username=self.kwargs['username'])
-        context['favorite'] = Favorite.objects.get(user=user.id)
+        favorite, create = Favorite.objects.get_or_create(user=self.request.user)
+        context['favorite'] = favorite
         return context
 
