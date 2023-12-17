@@ -2,12 +2,14 @@ import datetime
 
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView, View)
+from django.urls import reverse, reverse_lazy
 
-from .forms import CommentForm
+from .forms import CommentForm, CustomUserChangeForm
 from .mixins import (
     CategoryCreateUpdateDeleteMixin,
     CommentMixinCreateUpdateDeleteMixin,
@@ -19,8 +21,8 @@ from .mixins import (
 from .models import Cart, Category, Comment, Product, ProductType, User, Favorite
 
 
-PAGINATE = 8
-PAGINATE_CATEGORY = 16
+PAGINATE = 9
+PAGINATE_CATEGORY = 15
 PAGINATE_CREATE = 6
 
 
@@ -187,12 +189,14 @@ class ProductTypeDetailView(DetailView):
     template_name = 'main/product_type/product_type_detail.html'
     paginate_by = PAGINATE
     slug_url_kwarg = 'product_type'
+    context_object_name = 'product_type'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['products'] = Product.objects.filter(
             product_type=self.object
         )
+        context['categories'] = Category.objects.filter(is_published=True)
         return context
 
 
@@ -294,6 +298,34 @@ class ProfileDetailView(LoginRequiredMixin, DeleteView):
     template_name = 'main/profile.html'
 
 
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    """Редактирование профиля."""
+
+    model = User
+    form_class = CustomUserChangeForm
+    template_name = 'main/change_profile.html'
+    slug_url_kwarg = 'username'
+    slug_field = 'username'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'main:profile_detail',
+            kwargs={
+                'username': self.kwargs['username']
+            }
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.username != request.user.username:
+            return redirect('main:index')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class CreatesListView(ListView):
     """Страница для наполнителя."""
 
@@ -332,7 +364,21 @@ class CartDetailView(
         context = super().get_context_data(**kwargs)
         cart, created = Cart.objects.get_or_create(user=self.request.user)
         context['cart'] = cart
+        context['cart_price'] = sum([product.price for product in cart.product.all()])
         return context
+
+
+class CartDeleteItemView(LoginRequiredMixin, View):
+    """Удаление продукта из корзины."""
+
+    def post(self, request, *args, **kwargs):
+        item_id = request.POST.get('product_id')
+        item = get_object_or_404(Cart, product=item_id)
+        item.delete()
+        return reverse(
+            'main:cart_view',
+            self.request.user
+        )
 
 
 class FavoriteCreateView(LoginRequiredMixin, View):
@@ -360,3 +406,23 @@ class FavoriteDetailView(
         context['favorite'] = favorite
         return context
 
+
+class SearchResultsListView(ListView):
+    """Система поиска продуктов на сайте."""
+
+    model = Product
+    context_object_name = 'products'
+    template_name = 'main/search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.filter(is_published=True)
+        return context
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        query = query.title()
+        object_list = Product.objects.filter(
+            Q(title__icontains=query)
+        )
+        return object_list

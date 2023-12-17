@@ -5,13 +5,10 @@
   {% for category in categories %}
     <ul class="list-unstyled ps-0">
       <li class="mb-1">
-        <a href="{% url 'main:category_detail' category.slug %}">
-          <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                    data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">
+          <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" data-bs-target="#home-collapse" aria-expanded="true">
             {{ category.title }}
           </button>
-        </a>
-        <div class="collapse show" id="home-collapse">
+        <div class="collapse show" id="home-collapse" style>
           <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
             {% for type in category.types.all %}
               <li>

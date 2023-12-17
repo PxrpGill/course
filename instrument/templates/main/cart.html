@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load django_bootstrap5 %}
 
 {% block title %}
   Содержимое корзины пользователя {{ user.username }}
@@ -31,6 +32,9 @@
             </div>
           </div>
         {% endfor %}
+        <hr>
+        <h1>Сумма корзины: {{ cart_price|floatformat:2 }}</h1>
+        {% bootstrap_button button_type="submit" content="Купить" %}
       {% else %}
         <h3 class="mt-5">Ваша корзина пуста!</h3>
       {% endif %}

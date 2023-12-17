@@ -1,14 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% load django_bootstrap5 %}
-
 {% block title %}
   Страница - {{ product.title }} / {{ product.pk }}
 {% endblock %}
-
 {% block content %}
-  <div class="d-flex justify-content-center m-5">
+  <div class="d-flex justify-content-center m-3">
     <div class="card col-9 m-4">
       <div class="card-header">
         Детальный обзор продукта: <h1>{{ product.title }} / {{ product.pk }}</h1>

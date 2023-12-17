@@ -13,7 +13,7 @@
         {% if request.user.is_authenticated %}
           <li>
             <a href="{% url 'main:favorite_view' user.username %}" class="nav-link px-2">
-              <img src="{% static 'images/add_favorites.png' %}" width="30" height="30">
+              <img src="{% static 'images/icons8-favorite-48.png' %}" width="30" height="30">
             </a>
           </li>
           <li>
@@ -23,8 +23,8 @@
           </li>
         {% endif %}
       </ul>
-      <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-        <input type="search" class="form-control form-control-dark text-white" placeholder="Найти..." aria-label="Найти">
+      <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" method="get" action="{% url 'main:search' %}">
+        <input type="search" class="form-control form-control-dark"  name="q" placeholder="Найти..." aria-label="Найти">
       </form>
       <div class="text-end">
         {% if request.user.is_authenticated %}
@@ -33,6 +33,13 @@
               Личный кабинет
             </button>
           </a>
+          {% if user.is_staff %}
+            <a href="{% url 'main:creates' %}">
+              <button type="buttion" class="btn btn-outline-light me-2">
+                Создать продукт
+              </button>
+            </a>
+          {% endif %}
         {% else %}
           <a href="{% url 'login' %}">
             <button type="button" class="btn btn-outline-light me-2">

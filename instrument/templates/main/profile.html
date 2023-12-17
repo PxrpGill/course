@@ -7,14 +7,26 @@
 {% block content %}
   <div class="container">
     <h1 class="mb-5 text-center my-5">Аккаунт пользователя {{ profile.username }}</h1>
-    <p>Имя пользователя: {% if profile.get_full_name %}{{ profile.get_full_name }}{% else %}не указано{% endif %}</p>
-    <p>Регистрация: {{ profile.date_joined }}</p>
-    <p>Роль: {% if profile.is_staff %}Админ{% else %}Пользователь{% endif %}</p>
-    {% if user.is_authenticated and request.user == profile %}
-      <a href="#">Редактировать профиль</a>
-      <a href="{% url 'password_change' %}">Изменить пароль</a>
-      <a href="{% url 'logout' %}">Выйти</a>
-    {% endif %}
+    <div class="card p-3 mb-3">
+      <ul class="nav justify-content-center">
+        {% if user.is_authenticated and request.user == profile %}
+          <li class="nav-item">
+            <a href="{% url 'main:change_profile' profile.username %}" class="nav-link px-2">Редактировать профиль</a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'password_change' %}" class="nav-link px-2">Изменить пароль</a>
+          </li>
+          <li class="nav-item">
+            <a href="{% url 'logout' %}" class="nav-link px-2">Выйти</a>
+          </li>
+        {% endif %}
+        </ul>
+    </div>
+    <div class="card col-4 p-4">
+      <p>Имя пользователя: {% if profile.get_full_name %}{{ profile.get_full_name }}{% else %}не указано{% endif %}</p>
+      <p>Электронная почта: {% if profile.email %} {{ profile.email }}{% else %}не указано{% endif %}</p>
+      <p>Регистрация: {{ profile.date_joined }}</p>
+      <p>Роль: {% if profile.is_staff %}Админ{% else %}Пользователь{% endif %}</p>
+    </div>
   </div>
-
 {% endblock %}

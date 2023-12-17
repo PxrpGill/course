@@ -1,6 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import UserChangeForm
 
-from .models import Category, Comment, Product, ProductType
+from .models import Category, Comment, Product, ProductType, User
 
 
 class ProductForm(forms.ModelForm):
@@ -36,3 +37,24 @@ class ProductTypeForm(forms.ModelForm):
     class Meta:
         model = ProductType
         fields = '__all__'
+
+
+class CustomUserChangeForm(UserChangeForm):
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name'
+        )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)

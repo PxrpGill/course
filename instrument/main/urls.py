@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import path
 
 from . import views
 
@@ -93,6 +93,11 @@ urlpatterns = [
         name='profile_detail'
     ),
     path(
+        'instrument/profile/edit/<username>/',
+        views.ProfileUpdateView.as_view(),
+        name='change_profile'
+    ),
+    path(
         'instrument/creates/products/product_types/categories/',
         views.CreatesListView.as_view(),
         name='creates'
@@ -117,4 +122,14 @@ urlpatterns = [
         views.FavoriteCreateView.as_view(),
         name='favorite_add_product'
     ),
+    path(
+        'cart/product/<int:product_id/',
+        views.CartDeleteItemView.as_view(),
+        name='cart_delete_product'
+    ),
+    path(
+        'search/',
+        views.SearchResultsListView.as_view(),
+        name='search'
+    )
 ]
