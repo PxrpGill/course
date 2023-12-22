@@ -28,14 +28,7 @@
                 <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
                   Смотреть
                 </a>
-                <form method="post"
-                      enctype="multiparty/form-data"
-                      action="{% url 'main:favorite_add_product' product.pk %}">
-                  {% csrf_token %}
-                  <input type="image"
-                         src="{% static 'images/add_favorites.png' %}"
-                         width="30" height="30" alt="Добавить в избранное">
-                </form>
+                {% include "includes/add_delete_fav.html" %}
               </div>
             </div>
           {% endfor %}

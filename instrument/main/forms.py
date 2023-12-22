@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserChangeForm
 
-from .models import Category, Comment, Product, ProductType, User
+from .models import Category, Comment, Product, ProductType, User, ProductRating, RatingStar, Manufacturer
 
 
 class ProductForm(forms.ModelForm):
@@ -58,3 +58,41 @@ class CustomUserChangeForm(UserChangeForm):
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
+
+
+class RatingForm(forms.ModelForm):
+    """Форма для рейтинга"""
+
+    star = forms.ModelChoiceField(
+        queryset=RatingStar.objects.all(),
+        widget=forms.RadioSelect(),
+        empty_label=None
+    )
+
+    class Meta:
+        model = ProductRating
+        fields = ('star',)
+
+
+class ProductFilterForm(forms.Form):
+    max_price = forms.FloatField(
+        label='Максимальная цена',
+        required=False
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        empty_label='Выберите производителя',
+        required=False
+    )
+
+
+class ProductTypeFilterForm(forms.Form):
+    max_price = forms.FloatField(
+        label='Максимальная цена',
+        required=False
+    )
+    manufacturer = forms.ModelChoiceField(
+        queryset=Manufacturer.objects.all(),
+        empty_label='Выберите производителя',
+        required=False
+    )

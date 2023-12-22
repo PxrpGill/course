@@ -25,16 +25,28 @@
               <h5 class="card-title">{{ product.title }}</h5>
               <p class="card-text">{{ product.description|truncatewords:8 }}</p>
               <p class="card-price">Цена: {{ product.price }} руб.</p>
-              <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
+              <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}"
+                 class="btn btn-primary">
                 Смотреть
               </a>
+              <form method="post"
+                    enctype="multipart/form-data"
+                    action="{% url 'main:cart_delete_product' product.pk %}" class="mt-3">
+                {% csrf_token %}
+                {% bootstrap_button button_type="submit" content="Удалить из корзины" %}
+              </form>
               <img src="{% static 'images/add_favorites.png' %}" width="30" height="30">
             </div>
           </div>
         {% endfor %}
         <hr>
         <h1>Сумма корзины: {{ cart_price|floatformat:2 }}</h1>
-        {% bootstrap_button button_type="submit" content="Купить" %}
+        <form method="POST"
+              enctype="multipart/form-data"
+              action="{% url 'main:add_history' user.username %}">
+          {% csrf_token %}
+          {% bootstrap_button button_type="submit" content="Купить" %}
+        </form>
       {% else %}
         <h3 class="mt-5">Ваша корзина пуста!</h3>
       {% endif %}

@@ -1,0 +1,13 @@
+{% load django_bootstrap5 %}
+<h3>Поставить рейтинг продукту</h3>
+<p>{{ product.name }}</p>
+<form method="post" action="#">
+  {% csrf_token %}
+  <input type="hidden" value="{{ product.pk }}" name="product">
+  <span class="rating">
+    {% for key, value in star_form.fields.star.choices %}
+      <input id="rating{{ v }}" type="radio" name="star" value="{{ v }}">
+      <label for="rating{{ v }}">{{ k }}</label>
+    {% endfor %}
+  </span>
+</form>

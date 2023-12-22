@@ -4,12 +4,12 @@ from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, reverse
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView, View)
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 
-from .forms import CommentForm, CustomUserChangeForm
+from .forms import CommentForm, CustomUserChangeForm, RatingForm, ProductFilterForm
 from .mixins import (
     CategoryCreateUpdateDeleteMixin,
     CommentMixinCreateUpdateDeleteMixin,
@@ -18,7 +18,17 @@ from .mixins import (
     ProductTypeCreateUpdateDeleteMixin,
     CartAndFavViewMixin
 )
-from .models import Cart, Category, Comment, Product, ProductType, User, Favorite
+from .models import (
+    Cart,
+    Category,
+    Comment,
+    Product,
+    ProductType,
+    User,
+    Favorite,
+    ProductRating,
+    OrderHistory
+)
 
 
 PAGINATE = 9
@@ -30,13 +40,13 @@ class MainPageListView(ListView):
     """Отображение главной страницы."""
 
     model = Product
-    context_object_name = 'product'
     paginate_by = PAGINATE
     template_name = 'main/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.filter(is_published=True)
+        context['favorites'] = Favorite.objects.get(user=self.request.user)
         return context
 
     def get_queryset(self):
@@ -60,7 +70,9 @@ class ProductDetailView(DetailView):
         context['comments'] = Comment.objects.filter(
             product_id=self.kwargs['product_id']
         )
+        context['favorites'] = Favorite.objects.get(user=self.request.user)
         context['form'] = CommentForm()
+        context['star_form'] = RatingForm()
         return context
 
 
@@ -130,12 +142,16 @@ class CategoryDetailView(DetailView):
     model = Category
     template_name = 'main/category/category_detail.html'
     slug_url_kwarg = 'category'
+    context_object_name = 'select_category'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['product_types'] = ProductType.objects.filter(
             category=self.get_object()
         )
+        context['favorites'] = Favorite.objects.get(user=self.request.user)
+        context['categories'] = Category.objects.all()
+        context['products'] = Product.objects.filter(category=self.object)
         return context
 
 
@@ -193,10 +209,26 @@ class ProductTypeDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['products'] = Product.objects.filter(
+        context['categories'] = Category.objects.filter(is_published=True)
+        context['favorites'] = Favorite.objects.get(user=self.request.user)
+
+        form = ProductFilterForm(self.request.GET)
+        products = Product.objects.filter(
             product_type=self.object
         )
-        context['categories'] = Category.objects.filter(is_published=True)
+
+        if form.is_valid():
+            max_price = form.cleaned_data['max_price']
+            manufacturer = form.cleaned_data['manufacturer']
+
+            if max_price:
+                products = products.filter(price__lte=max_price)
+            if manufacturer:
+                products = products.filter(manufacturer=manufacturer)
+
+        context['form'] = form
+        context['products'] = products
+
         return context
 
 
@@ -368,16 +400,22 @@ class CartDetailView(
         return context
 
 
-class CartDeleteItemView(LoginRequiredMixin, View):
+class CartDeleteItemView(LoginRequiredMixin, DeleteView):
     """Удаление продукта из корзины."""
 
-    def post(self, request, *args, **kwargs):
-        item_id = request.POST.get('product_id')
-        item = get_object_or_404(Cart, product=item_id)
-        item.delete()
-        return reverse(
+    def post(self, request, product_id):
+        user = request.user
+        product = Product.objects.get(id=product_id)
+        cart = Cart.objects.get(user=user)
+        cart.product.remove(product)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse_lazy(
             'main:cart_view',
-            self.request.user
+            kwargs={
+                'username': self.request.user.username
+            }
         )
 
 
@@ -388,7 +426,7 @@ class FavoriteCreateView(LoginRequiredMixin, View):
         favorite, created = Favorite.objects.get_or_create(user=request.user)
         product = get_object_or_404(Product, pk=product_id)
         favorite.product.add(product)
-        return redirect('main:index')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class FavoriteDetailView(
@@ -403,8 +441,28 @@ class FavoriteDetailView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         favorite, create = Favorite.objects.get_or_create(user=self.request.user)
+        context['favorites'] = Favorite.objects.get(user=self.request.user)
         context['favorite'] = favorite
         return context
+
+
+class FavoriteDeleteItemView(LoginRequiredMixin, DeleteView):
+    """Удаление продукта из избранного."""
+
+    def post(self, request, product_id):
+        user = request.user
+        product = Product.objects.get(id=product_id)
+        favorite = Favorite.objects.get(user=user)
+        favorite.product.remove(product)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'main:favorite_view',
+            kwargs={
+                'username': self.request.user.username
+            }
+        )
 
 
 class SearchResultsListView(ListView):
@@ -417,6 +475,7 @@ class SearchResultsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.filter(is_published=True)
+        context['favorites'] = Favorite.objects.get(user=self.request.user)
         return context
 
     def get_queryset(self):
@@ -426,3 +485,40 @@ class SearchResultsListView(ListView):
             Q(title__icontains=query)
         )
         return object_list
+
+
+class AddToOrderHistory(LoginRequiredMixin, CreateView):
+    """Добавление заказа в историю."""
+
+    slug_url_kwarg = 'username'
+    slug_field = 'username'
+
+    def post(self, request, username):
+        user = User.objects.get(username=username)
+        cart = get_object_or_404(Cart, user=user)
+        products = cart.product.all()
+        order = OrderHistory.objects.create(user=user, cart=cart)
+        order.product.set(products)
+        cart.product.clear()
+        return redirect('main:cart_view', username)
+
+    def dispatch(self, request, *args, **kwargs):
+        user = User.objects.get(username=kwargs['username'])
+        instance = Cart.objects.get(user=user)
+
+        if instance.user != request.user:
+            return reverse(
+                'main:cart_view',
+                kwargs={
+                    'username': user
+                }
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+
+class OrderHistoryListView(ListView):
+    model = OrderHistory
+    template_name = 'main/order.html'
+
+    def get_queryset(self):
+        return OrderHistory.objects.filter(user=self.request.user)

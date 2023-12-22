@@ -14,7 +14,13 @@
       </div>
       <div class="col-md-9">
         <div class="row">
-          <h3 class="mt-3">Тип продукта: {{ product_type.title }}</h3>
+          <h3 class="mt-4">Тип продукта: {{ product_type.title }}</h3>
+          <hr>
+          <div class="m-3">
+            <h5>Фильтр:</h5>
+            {% include "includes/filter.html" %}
+            <hr>
+          </div>
           {% for product in products %}
             <div class="card col-md-4 my-3 p-2">
               {% if product.image %}
@@ -29,14 +35,7 @@
                 <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
                   Смотреть
                 </a>
-                <form method="post"
-                      enctype="multiparty/form-data"
-                      action="{% url 'main:favorite_add_product' product.pk %}">
-                  {% csrf_token %}
-                  <input type="image"
-                         src="{% static 'images/add_favorites.png' %}"
-                         width="30" height="30" alt="Добавить в избранное">
-                </form>
+                {% include "includes/add_delete_fav.html" %}
               </div>
             </div>
           {% endfor %}

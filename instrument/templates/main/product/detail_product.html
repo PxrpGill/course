@@ -24,6 +24,9 @@
         <h3>Характеристики:</h3>
         <p>{{ product.parameters|linebreaksbr }}</p>
         <hr>
+        <h3>Производитель:</h3>
+        <p>{{ product.manufacturer }}</p>
+        <hr>
         <h3>Категория:</h3>
         <p>{{ product.category }}</p>
         <hr>
@@ -42,16 +45,10 @@
             {% csrf_token %}
             {% bootstrap_button button_type="submit" content="Добавить в корзину" %}
           </form>
-          <form method="post"
-                enctype="multiparty/form-data"
-                action="{% url 'main:favorite_add_product' product.pk %}">
-            {% csrf_token %}
-            <input type="image"
-                   src="{% static 'images/add_favorites.png' %}"
-                   width="30" height="30" alt="Добавить в избранное">
-          </form>
+          {% include "includes/add_delete_fav.html" %}
         </div>
         <hr>
+        {% include "includes/rating.html" %}
         {% include "includes/create_comment.html" %}
       </div>
     </div>

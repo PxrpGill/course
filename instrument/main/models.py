@@ -23,6 +23,24 @@ class Published(models.Model):
         abstract = True
 
 
+class Manufacturer(Published):
+    """Таблица в БД - Производитель."""
+
+    name = models.CharField(
+        max_length=128,
+        unique=True,
+        verbose_name='Название производителя'
+    )
+
+    def __str__(self):
+        return f'{self.name}'
+
+    class Meta:
+        verbose_name = 'производитель'
+        verbose_name_plural = 'Производители'
+        ordering = ('-created_at',)
+
+
 class Category(Published):
     """Таблица в БД - Категория."""
 
@@ -126,6 +144,12 @@ class Product(Published):
         help_text='Цена не может быть ниже нуля.',
         default=1
     )
+    manufacturer = models.ForeignKey(
+        Manufacturer,
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name='Производетель'
+    )
 
     class Meta:
         verbose_name = 'инструмент'
@@ -171,7 +195,7 @@ class CartAndFavModel(models.Model):
     )
     product = models.ManyToManyField(
         Product,
-        verbose_name='Продукт'
+        verbose_name='Продукт',
     )
 
     class Meta:
@@ -189,6 +213,37 @@ class Cart(CartAndFavModel):
         verbose_name_plural = 'Корзины'
 
 
+class OrderHistory(models.Model):
+    """Запись в БД - История заказов."""
+
+    cart = models.ForeignKey(
+        Cart,
+        on_delete=models.CASCADE,
+        verbose_name='Обрабатываемая корзина'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    product = models.ManyToManyField(
+        Product,
+        verbose_name='Продукт'
+    )
+    created_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Время создания'
+    )
+
+    def __str__(self):
+        return f'{self.user} - {self.cart}'
+
+    class Meta:
+        verbose_name = 'история заказов'
+        verbose_name_plural = 'Истории заказов'
+        ordering = ('-created_at',)
+
+
 class Favorite(CartAndFavModel):
     """Таблица в БД - Избранное."""
 
@@ -198,3 +253,49 @@ class Favorite(CartAndFavModel):
     class Meta:
         verbose_name = 'избранное'
         verbose_name_plural = 'Избранное'
+
+
+class RatingStar(models.Model):
+    """Звезда рейтинга."""
+
+    value = models.SmallIntegerField(default=0, verbose_name='Значение')
+
+    def __str__(self):
+        return f'{self.value}'
+
+    class Meta:
+        verbose_name = 'звезда рейтинга'
+        verbose_name_plural = 'Звезды рейтинга'
+        ordering = ('-value',)
+
+
+class ProductRating(models.Model):
+    """Рейтинг продукта."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name='Продукт'
+    )
+    star = models.ForeignKey(
+        RatingStar,
+        on_delete=models.CASCADE,
+        verbose_name='Звезда',
+        default=0
+    )
+    created_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Добавлено'
+    )
+
+    def __str__(self):
+        return f'{self.product} - {self.star}'
+
+    class Meta:
+        verbose_name = 'рейтинг'
+        verbose_name_plural = 'Рейтинги'

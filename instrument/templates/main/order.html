@@ -1,17 +1,14 @@
 {% extends "base.html" %}
-{% load django_bootstrap5 %}
 {% load static %}
 {% block title %}
-  Избранное пользователя {{ user.username }}
+  История заказов
 {% endblock %}
 {% block content %}
   <div class="container mt-5">
-    <h3>Избранное:</h3>
-  </div>
-  <div class="container col-md-9">
     <div class="row">
-      {% if favorite.product.all %}
-        {% for product in favorite.product.all %}
+      <h3>История заказов</h3>
+      {% for order in object_list %}
+        {% for product in order.product.all %}
           <div class="card col-md-3 my-3 p-2">
             {% if product.image %}
               <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.title }}" width="120" height="200">
@@ -22,16 +19,14 @@
               <h5 class="card-title">{{ product.title }}</h5>
               <p class="card-text">{{ product.description|truncatewords:8 }}</p>
               <p class="card-price">Цена: {{ product.price }} руб.</p>
-              <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
+              <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}"
+                 class="btn btn-primary">
                 Смотреть
               </a>
-              {% include "includes/add_delete_fav.html" %}
             </div>
           </div>
         {% endfor %}
-      {% else %}
-        <h3 class="mt-5">Ваш список избранного пуст!</h3>
-      {% endif %}
+      {% endfor %}
     </div>
   </div>
 {% endblock %}

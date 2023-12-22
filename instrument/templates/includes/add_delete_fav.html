@@ -1,0 +1,20 @@
+{% load static %}
+{% if product not in favorites.product.all %}
+    <form method="post"
+        enctype="multiparty/form-data"
+        action="{% url 'main:favorite_add_product' product.pk %}">
+        {% csrf_token %}
+        <input type="image"
+               src="{% static 'images/add_favorites.png' %}"
+               width="30" height="30" alt="Добавить в избранное">
+    </form>
+{% else %}
+    <form method="post"
+          enctype="multiparty/form-data"
+          action="{% url 'main:favorite_delete_product' product.pk %}">
+        {% csrf_token %}
+        <input type="image"
+               src="{% static 'images/icons8-favorite-48.png' %}"
+               width="30" height="30" alt="Добавить в избранное">
+    </form>
+{% endif %}

@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Cart, Category, Comment, Favorite, Product, ProductType
+from .models import (
+    Cart, Category,
+    Comment, Favorite,
+    Product, ProductType,
+    RatingStar, ProductRating,
+    Manufacturer,
+    OrderHistory
+)
 
 # admin 1234
 
@@ -12,7 +19,8 @@ class ProductAdmin(admin.ModelAdmin):
         'product_type',
         'is_published',
         'pub_date',
-        'created_at'
+        'created_at',
+        'manufacturer'
     )
     list_editable = ('is_published',)
     search_fields = ('title',)
@@ -63,9 +71,22 @@ class CartAndFavoriteAdmin(admin.ModelAdmin):
     list_filter = ('product',)
 
 
+class ManufacturerAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'is_published',
+        'created_at'
+    )
+    list_editable = ('is_published',)
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(ProductType, ProductTypeAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Cart, CartAndFavoriteAdmin)
 admin.site.register(Favorite, CartAndFavoriteAdmin)
+admin.site.register(ProductRating)
+admin.site.register(RatingStar)
+admin.site.register(Manufacturer, ManufacturerAdmin)
+admin.site.register(OrderHistory)

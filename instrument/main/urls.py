@@ -123,13 +123,28 @@ urlpatterns = [
         name='favorite_add_product'
     ),
     path(
-        'cart/product/<int:product_id/',
+        'search/',
+        views.SearchResultsListView.as_view(),
+        name='search'
+    ),
+    path(
+        'cart/item/<int:product_id>/delete/',
         views.CartDeleteItemView.as_view(),
         name='cart_delete_product'
     ),
     path(
-        'search/',
-        views.SearchResultsListView.as_view(),
-        name='search'
+        'favorite/item/<int:product_id>/delete',
+        views.FavoriteDeleteItemView.as_view(),
+        name='favorite_delete_product'
+    ),
+    path(
+        'cart/clear/add_history/<username>/',
+        views.AddToOrderHistory.as_view(),
+        name='add_history'
+    ),
+    path(
+        'history/',
+        views.OrderHistoryListView.as_view(),
+        name='history_view'
     )
 ]
