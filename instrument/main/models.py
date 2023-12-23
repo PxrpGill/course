@@ -176,6 +176,7 @@ class Comment(Published):
         related_name='comments'
     )
 
+
     class Meta:
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
@@ -255,21 +256,7 @@ class Favorite(CartAndFavModel):
         verbose_name_plural = 'Избранное'
 
 
-class RatingStar(models.Model):
-    """Звезда рейтинга."""
-
-    value = models.SmallIntegerField(default=0, verbose_name='Значение')
-
-    def __str__(self):
-        return f'{self.value}'
-
-    class Meta:
-        verbose_name = 'звезда рейтинга'
-        verbose_name_plural = 'Звезды рейтинга'
-        ordering = ('-value',)
-
-
-class ProductRating(models.Model):
+class Rating(models.Model):
     """Рейтинг продукта."""
 
     user = models.ForeignKey(
@@ -282,11 +269,15 @@ class ProductRating(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Продукт'
     )
-    star = models.ForeignKey(
-        RatingStar,
-        on_delete=models.CASCADE,
-        verbose_name='Звезда',
-        default=0
+    rating = models.IntegerField(
+        choices=[
+            (1, '1'),
+            (2, '2'),
+            (3, '3'),
+            (4, '4'),
+            (5, '5')
+        ],
+        verbose_name='Рейтинг'
     )
     created_at = models.DateTimeField(
         auto_now=True,
@@ -294,8 +285,10 @@ class ProductRating(models.Model):
     )
 
     def __str__(self):
-        return f'{self.product} - {self.star}'
+        return f'{self.user} - {self.product} - {self.rating}'
 
     class Meta:
         verbose_name = 'рейтинг'
         verbose_name_plural = 'Рейтинги'
+        ordering = ('-created_at',)
+

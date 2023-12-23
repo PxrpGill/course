@@ -19,19 +19,19 @@
 {% if comments %}
   <div class="mt-5">
     {% for comment in comments %}
-      <h3><a href="{% url 'main:profile_detail' comment.author.username %}">@{{ comment.author }}</a></h3>
-      <p>{{ comment.text }}</p>
-      <p>{{ comment.created_at }}</p>
-      {% if user.is_authenticated %}
-        <a
-          href="{% url 'main:comment_edit' product.category.slug product.product_type.slug product.id comment.id %}">
-          Отредактировать комментарий
-        </a>
-        <a
-          href="{% url 'main:comment_delete' product.category.slug product.product_type.slug product.id comment.id %}">
-          Удалить комментарий
-        </a>
-      {% endif %}
+        <h3><a href="#">@{{ comment.author }}</a></h3>
+        <p>{{ comment.text }}</p>
+        <p>{{ comment.created_at }}</p>
+        {% if user.is_authenticated %}
+          <a
+            href="{% url 'main:comment_edit' product.category.slug product.product_type.slug product.id comment.id %}">
+            Отредактировать комментарий
+          </a>
+          <a
+            href="{% url 'main:comment_delete' product.category.slug product.product_type.slug product.id comment.id %}">
+            Удалить комментарий
+          </a>
+        {% endif %}
     {% endfor %}
   </div>
 {% endif %}

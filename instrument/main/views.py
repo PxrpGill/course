@@ -9,7 +9,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView, View)
 from django.urls import reverse_lazy
 
-from .forms import CommentForm, CustomUserChangeForm, RatingForm, ProductFilterForm
+from .forms import CommentForm, CustomUserChangeForm, ProductFilterForm, ProductRatingForm
 from .mixins import (
     CategoryCreateUpdateDeleteMixin,
     CommentMixinCreateUpdateDeleteMixin,
@@ -26,8 +26,8 @@ from .models import (
     ProductType,
     User,
     Favorite,
-    ProductRating,
-    OrderHistory
+    OrderHistory,
+    Rating
 )
 
 
@@ -72,8 +72,26 @@ class ProductDetailView(DetailView):
         )
         context['favorites'] = Favorite.objects.get(user=self.request.user)
         context['form'] = CommentForm()
-        context['star_form'] = RatingForm()
+        context['rating_form'] = ProductRatingForm()
+        ratings = Rating.objects.filter(product=self.get_object())
+        total_rating = sum([rating.rating for rating in ratings])
+        num_ratings = len(ratings)
+        if num_ratings > 0:
+            average_rating = total_rating / num_ratings
+        else:
+            average_rating = 0  # Если нет оценок, устанавливаем средний рейтинг как 0.
+        context['average_rating'] = average_rating
         return context
+
+    def post(self, request, *args, **kwargs):
+        product = self.get_object()
+        form = ProductRatingForm(request.POST)
+        if form.is_valid():
+            rating = form.cleaned_data['rating']
+            Rating.objects.create(product=product, user=request.user, rating=rating)
+            return HttpResponseRedirect(request.path)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
 
 
 class ProductCreateView(

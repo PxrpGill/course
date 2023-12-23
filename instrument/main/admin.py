@@ -4,9 +4,9 @@ from .models import (
     Cart, Category,
     Comment, Favorite,
     Product, ProductType,
-    RatingStar, ProductRating,
     Manufacturer,
-    OrderHistory
+    OrderHistory,
+    Rating
 )
 
 # admin 1234
@@ -80,13 +80,21 @@ class ManufacturerAdmin(admin.ModelAdmin):
     list_editable = ('is_published',)
 
 
+class RatingAdmin(admin.ModelAdmin):
+    list_display = (
+        'rating',
+        'product',
+        'user',
+        'created_at'
+    )
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(ProductType, ProductTypeAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Cart, CartAndFavoriteAdmin)
 admin.site.register(Favorite, CartAndFavoriteAdmin)
-admin.site.register(ProductRating)
-admin.site.register(RatingStar)
+admin.site.register(Rating, RatingAdmin)
 admin.site.register(Manufacturer, ManufacturerAdmin)
 admin.site.register(OrderHistory)
