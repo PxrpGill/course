@@ -150,11 +150,22 @@ class Product(Published):
         null=True,
         verbose_name='Производетель'
     )
+    average_rating = models.FloatField(default=0)
+
+    def update_average_rating(self):
+        ratings = Rating.objects.filter(product=self)
+        total_rating = sum([rating.rating for rating in ratings])
+        num_ratings = len(ratings)
+        if num_ratings > 0:
+            self.average_rating = total_rating / num_ratings
+        else:
+            self.average_rating = 0
+        self.save()
 
     class Meta:
         verbose_name = 'инструмент'
         verbose_name_plural = 'Инструменты'
-        ordering = ('pub_date',)
+        ordering = ('-average_rating',)
 
     def __str__(self):
         return self.title

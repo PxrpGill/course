@@ -35,7 +35,9 @@
                 <a href="{% url 'main:product_detail' product.category.slug product.product_type.slug product.pk %}" class="btn btn-primary">
                   Смотреть
                 </a>
-                {% include "includes/add_delete_fav.html" %}
+                {% if user.is_authenticated %}
+                  {% include "includes/add_delete_fav.html" %}
+                {% endif %}
               </div>
             </div>
           {% endfor %}

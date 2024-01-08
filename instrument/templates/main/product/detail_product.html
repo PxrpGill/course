@@ -39,6 +39,7 @@
         <h3>Цена:</h3>
         <p>{{ product.price }} руб.</p>
         <div class="row">
+          {% if user.is_authenticated %}
           <form method="post"
                 enctype="multiparty/form-data"
                 action="{% url 'main:cart_add_product' product.pk %}">
@@ -46,11 +47,16 @@
             {% bootstrap_button button_type="submit" content="Добавить в корзину" %}
           </form>
           {% include "includes/add_delete_fav.html" %}
+          {% endif %}
         </div>
         <hr>
-        {% include "includes/rating.html" %}
+        {% if user.is_authenticated %}
+          {% include "includes/rating.html" %}
+        {% else %}
+          <p>Чтобы поставить рейтинг товару <a href="{% url 'login' %}">авторизируйтесь</a></p>
+        {% endif %}
         <hr>
-        <h3>Рейтинг продукта: {{ average_rating }}</h3>
+        <h3>Рейтинг продукта: {{ average_rating|floatformat:2 }}</h3>
         <hr>
         {% include "includes/create_comment.html" %}
       </div>

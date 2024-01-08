@@ -46,14 +46,15 @@ class MainPageListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.filter(is_published=True)
-        context['favorites'] = Favorite.objects.get(user=self.request.user)
+        if self.request.user.is_authenticated:
+            context['favorites'] = Favorite.objects.get(user=self.request.user)
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(
             is_published=True,
             pub_date__lte=datetime.datetime.now()
-        )
+        ).order_by('-average_rating')
         return queryset
 
 
@@ -70,7 +71,8 @@ class ProductDetailView(DetailView):
         context['comments'] = Comment.objects.filter(
             product_id=self.kwargs['product_id']
         )
-        context['favorites'] = Favorite.objects.get(user=self.request.user)
+        if self.request.user.is_authenticated:
+            context['favorites'] = Favorite.objects.get(user=self.request.user)
         context['form'] = CommentForm()
         context['rating_form'] = ProductRatingForm()
         ratings = Rating.objects.filter(product=self.get_object())
@@ -167,7 +169,8 @@ class CategoryDetailView(DetailView):
         context['product_types'] = ProductType.objects.filter(
             category=self.get_object()
         )
-        context['favorites'] = Favorite.objects.get(user=self.request.user)
+        if self.request.user.is_authenticated:
+            context['favorites'] = Favorite.objects.get(user=self.request.user)
         context['categories'] = Category.objects.all()
         context['products'] = Product.objects.filter(category=self.object)
         return context
@@ -228,7 +231,8 @@ class ProductTypeDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.filter(is_published=True)
-        context['favorites'] = Favorite.objects.get(user=self.request.user)
+        if self.request.user.is_authenticated:
+            context['favorites'] = Favorite.objects.get(user=self.request.user)
 
         form = ProductFilterForm(self.request.GET)
         products = Product.objects.filter(
@@ -356,10 +360,6 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'main/change_profile.html'
     slug_url_kwarg = 'username'
     slug_field = 'username'
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy(
@@ -493,7 +493,8 @@ class SearchResultsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.filter(is_published=True)
-        context['favorites'] = Favorite.objects.get(user=self.request.user)
+        if self.request.user.is_authenticated:
+            context['favorites'] = Favorite.objects.get(user=self.request.user)
         return context
 
     def get_queryset(self):
