@@ -137,7 +137,7 @@ class ProductDeleteView(
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
-        success_url = self.get_success_url()
+        success_url = self.success_url
         instance.delete()
         return HttpResponseRedirect(success_url)
 
@@ -213,7 +213,7 @@ class CategoryDeleteView(
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
-        success_url = self.get_success_url()
+        success_url = self.success_url
         instance.image.delete()
         instance.delete()
         return HttpResponseRedirect(success_url)
@@ -279,7 +279,7 @@ class ProductTypeDeleteView(
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
-        success_url = self.get_success_url()
+        success_url = self.success_url
         instance.delete()
         return HttpResponseRedirect(success_url)
 
@@ -415,6 +415,8 @@ class CartDetailView(
         cart, created = Cart.objects.get_or_create(user=self.request.user)
         context['cart'] = cart
         context['cart_price'] = sum([product.price for product in cart.product.all()])
+        if self.request.user.is_authenticated:
+            context['favorites'] = Favorite.objects.get(user=self.request.user)
         return context
 
 
